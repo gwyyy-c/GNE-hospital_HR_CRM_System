@@ -1,0 +1,46 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /api/
+
+    # CORS Headers
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, Access-Control-Allow-Headers, X-Requested-With"
+    Header set Access-Control-Max-Age "3600"
+
+    # Handle preflight requests
+    RewriteCond %{REQUEST_METHOD} ^OPTIONS$ [NC]
+    RewriteRule ^(.*)$ $1 [L]
+
+    # Remove .php from URLs
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^auth/login$ auth/login.php [L]
+    RewriteRule ^auth/logout$ auth/logout.php [L]
+    RewriteRule ^employee/get_all$ employee/get_all.php [L]
+    RewriteRule ^employee/get_doctors$ employee/get_doctors.php [L]
+    RewriteRule ^employee/create$ employee/create.php [L]
+    RewriteRule ^employee/update/(.*)$ employee/update.php?id=$1 [L]
+    RewriteRule ^employee/delete/(.*)$ employee/delete.php?id=$1 [L]
+    RewriteRule ^department/get_all$ department/get_all.php [L]
+    RewriteRule ^department/create$ department/create.php [L]
+    RewriteRule ^department/update/(.*)$ department/update.php?id=$1 [L]
+    RewriteRule ^department/delete/(.*)$ department/delete.php?id=$1 [L]
+    RewriteRule ^patient/get_all$ patient/get_all.php [L]
+    RewriteRule ^patient/register$ patient/register.php [L]
+    RewriteRule ^patient/update/(.*)$ patient/update.php?id=$1 [L]
+    RewriteRule ^patient/delete/(.*)$ patient/delete.php?id=$1 [L]
+    RewriteRule ^appointment/get_all$ appointment/get_all.php [L]
+    RewriteRule ^appointment/book$ appointment/book.php [L]
+    RewriteRule ^appointment/update/(.*)$ appointment/update.php?id=$1 [L]
+    RewriteRule ^appointment/cancel/(.*)$ appointment/cancel.php?id=$1 [L]
+    RewriteRule ^bed/get_available$ bed/get_available.php [L]
+    RewriteRule ^admission/get_all$ admission/get_all.php [L]
+    RewriteRule ^admission/admit$ admission/admit.php [L]
+    RewriteRule ^admission/discharge/(.*)$ admission/discharge.php?id=$1 [L]
+
+    # Default: deny access to non-mapped files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?request=$1 [L,QSA]
+</IfModule>
