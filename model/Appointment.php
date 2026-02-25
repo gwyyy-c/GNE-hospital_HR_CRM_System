@@ -1,23 +1,13 @@
 <?php
-/**
- * Appointment Model
- * =================
- * 
+/** 
  * Handles all database operations for the appointments table.
  * Uses JOINs to fetch linked patient and doctor names.
- * 
- * @package   hr-pms-backend
- * @category  Model
- * @author    GNE Hospital IT Department
  */
 class Appointment {
     private $conn;
     private $table_name = "appointments";
 
-    /**
-     * Constructor - accepts database connection
-     * @param PDO $db Database connection object
-     */
+
     public function __construct($db) { $this->conn = $db; }
 
     /**
@@ -120,6 +110,18 @@ class Appointment {
             $data['visit_reason'] ?? '',
             $id
         ]);
+    }
+
+    /**
+     * Update only the status of an appointment
+     * @param int    $id     Appointment ID
+     * @param string $status New status (Pending, Completed, Cancelled, No-show)
+     * @return bool Success status
+     */
+    public function updateStatus($id, $status) {
+        $query = "UPDATE " . $this->table_name . " SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$status, $id]);
     }
 
     /**

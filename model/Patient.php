@@ -1,4 +1,8 @@
 <?php
+/**
+ * Patient Model
+ * Handles all database operations for patient records
+ */
 class Patient {
     private $conn;
     private $table_name = "patients";

@@ -1,8 +1,9 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Content-Type: application/json; charset=UTF-8");
-include_once '../config/db_connection.php';
-include_once '../model/Admission.php';
+/**
+ * Admission Controller
+ * Handles patient admission operations
+ */
+require_once __DIR__ . '/../model/Admission.php';
 
 class AdmissionController {
     public function listAll($db) {

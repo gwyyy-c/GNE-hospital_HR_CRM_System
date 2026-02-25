@@ -1,4 +1,8 @@
 <?php
+/**
+ * Admission Model
+ * Handles patient admissions and bed assignments
+ */
 class Admission {
     private $conn;
     private $table_name = "admissions";

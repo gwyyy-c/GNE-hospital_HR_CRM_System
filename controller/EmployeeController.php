@@ -1,6 +1,9 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/Employee.php';
+/**
+ * Employee Controller
+ * Handles HR employee management operations
+ */
+require_once __DIR__ . '/../model/Employee.php';
 
 class EmployeeController {
     public function listAll($db) {

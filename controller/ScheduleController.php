@@ -1,11 +1,14 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/Schedule.php';
+/**
+ * Schedule Controller
+ * Handles employee work schedules
+ */
+require_once __DIR__ . '/../model/Schedule.php';
 
 class ScheduleController {
     /**
      * Get a specific employee's weekly shift schedule
-     * Required for HR and Staff Portals
+     * Required for HR and FrontDesk Portals
      */
     public function getEmployeeSchedule($db, $emp_id) {
         $schedule = new Schedule($db);

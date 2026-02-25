@@ -1,6 +1,9 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/MedicalRecord.php';
+/**
+ * Medical Record Controller
+ * Handles patient medical history operations
+ */
+require_once __DIR__ . '/../model/MedicalRecord.php';
 
 class MedicalRecordController {
     public function getHistory($db, $patient_id) {

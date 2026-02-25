@@ -1,6 +1,9 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/Bed.php';
+/**
+ * Bed Controller
+ * Handles hospital bed availability and status
+ */
+require_once __DIR__ . '/../model/Bed.php';
 
 class BedController {
     /**

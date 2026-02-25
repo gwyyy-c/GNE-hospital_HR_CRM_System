@@ -1,6 +1,9 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/Department.php';
+/**
+ * Department Controller
+ * Handles hospital department operations
+ */
+require_once __DIR__ . '/../model/Department.php';
 
 class DepartmentController {
     /**

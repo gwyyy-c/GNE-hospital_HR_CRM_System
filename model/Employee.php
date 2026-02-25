@@ -1,4 +1,8 @@
 <?php
+/**
+ * Employee Model
+ * Handles all database operations for employee records
+ */
 class Employee {
     private $conn;
     private $table_name = "employees";
@@ -6,16 +10,21 @@ class Employee {
     public function __construct($db) { $this->conn = $db; }
 
     public function readAll() {
-        // Correct columns: id, first_name, middle_name, last_name, role,
+        // columns: id, first_name, middle_name, last_name, role,
         // prc_license_no, hire_date, dept_id, email, contact_no, address, status
+        // Also fetch shift from schedules
         $query = "SELECT e.id, e.emp_id_display,
                          CONCAT(e.first_name, ' ', e.last_name) AS name,
+                         CONCAT(UPPER(LEFT(e.first_name, 1)), UPPER(LEFT(e.last_name, 1))) AS avatar,
                          e.first_name, e.middle_name, e.last_name,
-                         e.email, e.contact_no, e.address,
-                         e.role, e.status, e.hire_date, e.prc_license_no,
-                         e.dept_id, d.dept_name AS department
+                         e.email, e.contact_no AS phone, e.address,
+                         e.role, e.status, e.hire_date AS joined, e.prc_license_no,
+                         e.dept_id, d.dept_name AS department,
+                         TIME_FORMAT(s.shift_start, '%H:%i') AS shiftStart,
+                         TIME_FORMAT(s.shift_end, '%H:%i') AS shiftEnd
                   FROM " . $this->table_name . " e
                   LEFT JOIN departments d ON e.dept_id = d.dept_id
+                  LEFT JOIN schedules s ON s.emp_id = e.id AND s.day_of_week = 'Monday'
                   ORDER BY e.last_name ASC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();

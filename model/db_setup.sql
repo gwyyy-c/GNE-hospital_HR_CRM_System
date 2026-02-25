@@ -140,7 +140,7 @@ CREATE TABLE `medical_records` (
   `doctor_id` int(11) NOT NULL,
   `diagnosis` text DEFAULT NULL,
   `treatment_plan` text DEFAULT NULL,
-  `care_type` enum('Outpatient','Inpatient') NOT NULL,
+  `care_type` enum('Outpatient','Inpatient') NOT NULL DEFAULT 'Outpatient',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

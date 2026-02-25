@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /api/
+    RewriteBase /GNE-Hospital-Management-System/api/
 
     # CORS Headers
     Header set Access-Control-Allow-Origin "*"
@@ -20,27 +20,42 @@
     RewriteRule ^employee/get_all$ employee/get_all.php [L]
     RewriteRule ^employee/get_doctors$ employee/get_doctors.php [L]
     RewriteRule ^employee/create$ employee/create.php [L]
-    RewriteRule ^employee/update/(.*)$ employee/update.php?id=$1 [L]
-    RewriteRule ^employee/delete/(.*)$ employee/delete.php?id=$1 [L]
+    RewriteRule ^employee/update/(.*)$ employee/update.php [L]
+    RewriteRule ^employee/delete/(.*)$ employee/delete.php [L]
     RewriteRule ^department/get_all$ department/get_all.php [L]
     RewriteRule ^department/create$ department/create.php [L]
-    RewriteRule ^department/update/(.*)$ department/update.php?id=$1 [L]
-    RewriteRule ^department/delete/(.*)$ department/delete.php?id=$1 [L]
+    RewriteRule ^department/update/(.*)$ department/update.php [L]
+    RewriteRule ^department/delete/(.*)$ department/delete.php [L]
     RewriteRule ^patient/get_all$ patient/get_all.php [L]
     RewriteRule ^patient/register$ patient/register.php [L]
-    RewriteRule ^patient/update/(.*)$ patient/update.php?id=$1 [L]
-    RewriteRule ^patient/delete/(.*)$ patient/delete.php?id=$1 [L]
+    RewriteRule ^patient/update/(.*)$ patient/update.php [L]
+    RewriteRule ^patient/delete/(.*)$ patient/delete.php [L]
     RewriteRule ^appointment/get_all$ appointment/get_all.php [L]
     RewriteRule ^appointment/book$ appointment/book.php [L]
-    RewriteRule ^appointment/update/(.*)$ appointment/update.php?id=$1 [L]
-    RewriteRule ^appointment/cancel/(.*)$ appointment/cancel.php?id=$1 [L]
+    RewriteRule ^appointment/update/(.*)$ appointment/update.php [L]
+    RewriteRule ^appointment/delete/(.*)$ appointment/delete.php [L]
+    RewriteRule ^bed/get_all$ bed/get_all.php [L]
     RewriteRule ^bed/get_available$ bed/get_available.php [L]
+    RewriteRule ^bed/update/(.*)$ bed/update.php [L]
     RewriteRule ^admission/get_all$ admission/get_all.php [L]
     RewriteRule ^admission/admit$ admission/admit.php [L]
-    RewriteRule ^admission/discharge/(.*)$ admission/discharge.php?id=$1 [L]
+    RewriteRule ^admission/update/(.*)$ admission/update.php [L]
+    RewriteRule ^admission/discharge/(.*)$ admission/discharge.php [L]
+    RewriteRule ^schedule/get_all$ schedule/get_all.php [L]
+    RewriteRule ^schedule/create$ schedule/create.php [L]
+    RewriteRule ^schedule/update/(.*)$ schedule/update.php [L]
+    RewriteRule ^schedule/delete/(.*)$ schedule/delete.php [L]
+    RewriteRule ^medical_record/get_all$ medical_record/get_all.php [L]
+    RewriteRule ^medical_record/get/(.*)$ medical_record/get.php?id=$1 [L]
+    RewriteRule ^medical_record/create$ medical_record/create.php [L]
+    RewriteRule ^medical_record/update/(.*)$ medical_record/update.php [L]
+    RewriteRule ^billing/get_all$ billing/get_all.php [L]
+    RewriteRule ^billing/get_by_patient$ billing/get_by_patient.php [L]
+    RewriteRule ^billing/create$ billing/create.php [L]
+    RewriteRule ^billing/update_status$ billing/update_status.php [L]
 
-    # Default: deny access to non-mapped files
+    # Default: return 404 for non-mapped routes
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?request=$1 [L,QSA]
+    RewriteRule ^(.*)$ - [R=404,L]
 </IfModule>

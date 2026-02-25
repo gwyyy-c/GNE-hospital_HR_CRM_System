@@ -1,6 +1,9 @@
 <?php
-include_once '../config/db_connection.php';
-include_once '../model/Appointment.php';
+/**
+ * Appointment Controller
+ * Handles booking and managing patient appointments
+ */
+require_once __DIR__ . '/../model/Appointment.php';
 
 class AppointmentController {
     public function book($db, $data) {

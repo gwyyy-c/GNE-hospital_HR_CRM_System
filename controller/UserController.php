@@ -1,110 +1,85 @@
 <?php
-// Enable CORS for React frontend on localhost:5173
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-include_once '../config/db_connection.php';
-include_once '../model/User.php';
+/**
+ * UserController (AuthController)
+ * 
+ * Provides user authentication helpers.
+ * Note: The primary login flow is handled directly by api/auth/login.php
+ * using token-based auth (bin2hex). This controller is kept for reference
+ * and potential future use with JWT-based authentication.
+ */
+require_once __DIR__ . '/../model/User.php';
 
 class AuthController {
     
-    // Simple JWT generation (without external library)
-    private function generateJWT($userId, $email, $userName, $role, $department) {
-        $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
-        
-        // Token claims
-        $claims = [
-            'sub' => (string)$userId,
-            'id' => (int)$userId,
-            'email' => $email,
-            'name' => $userName,
-            'role' => $role,
-            'dept' => $department,
-            'department' => $department,
-            'iat' => time(),
-            'exp' => time() + (24 * 60 * 60) // 24 hour expiry
-        ];
-        
-        $payload = json_encode($claims);
-        
-        // Simple HMAC-SHA256 signature (in production, use a proper JWT library)
-        $secret = 'your-secret-key-change-this-in-production';
-        $signature = hash_hmac(
-            'sha256',
-            base64_encode($header) . '.' . base64_encode($payload),
-            $secret,
-            true
-        );
-        
-        return base64_encode($header) . '.' . 
-               base64_encode($payload) . '.' . 
-               base64_encode($signature);
+    /**
+     * Generate a simple hex token for session authentication.
+     * @return string 64-character hex token
+     */
+    public function generateToken() {
+        return bin2hex(random_bytes(32));
     }
     
+    /**
+     * Authenticate a user by username/email and password.
+     * 
+     * @param PDO    $db       Database connection
+     * @param string $username Email or username
+     * @param string $password Plain-text password
+     * @return void Outputs JSON response directly
+     */
     public function login($db, $username, $password) {
         try {
             $userModel = new User($db);
+            $user = $userModel->findByUsername($username);
             
-            // Try to find by email first, then by username
-            $user = null;
-            if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-                $user = $userModel->findByEmail($username);
-            } else {
-                $user = $userModel->findByUsername($username);
-            }
-            
-            // If user not found or password doesn't match
             if (!$user) {
                 http_response_code(401);
-                echo json_encode([
-                    "message" => "Invalid email/username or password",
-                    "success" => false
-                ]);
+                echo json_encode(["message" => "Invalid credentials"]);
                 return;
             }
             
-            // Verify password (assuming it's plain text for now, in production hash it)
-            if ($user['password'] !== $password && !password_verify($password, $user['password'] ?? '')) {
+            // Verify bcrypt password hash
+            if (!password_verify($password, $user['password_hash'])) {
                 http_response_code(401);
-                echo json_encode([
-                    "message" => "Invalid email/username or password",
-                    "success" => false
-                ]);
+                echo json_encode(["message" => "Invalid credentials"]);
                 return;
             }
             
-            // Generate JWT token
-            $token = $this->generateJWT(
-                $user['id'],
-                $user['email'],
-                $user['name'] ?? $user['username'] ?? 'User',
-                $user['role'] ?? 'User',
-                $user['department'] ?? 'General'
-            );
+            // Check active status
+            if (!$user['is_active']) {
+                http_response_code(403);
+                echo json_encode(["message" => "Account is inactive"]);
+                return;
+            }
             
-            // Return success response with token
+            // Fetch employee details
+            $empStmt = $db->prepare(
+                "SELECT id, emp_id_display, first_name, last_name, role, dept_id
+                 FROM employees WHERE id = ?"
+            );
+            $empStmt->execute([$user['emp_id']]);
+            $employee = $empStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $token = $this->generateToken();
+            
             http_response_code(200);
             echo json_encode([
-                "success" => true,
                 "message" => "Login successful",
-                "token" => $token,
-                "user" => [
-                    "id" => (int)$user['id'],
-                    "email" => $user['email'],
-                    "name" => $user['name'] ?? 'User',
-                    "role" => $user['role'] ?? 'User',
-                    "department" => $user['department'] ?? 'General'
+                "token"   => $token,
+                "user"    => [
+                    "id"             => $user['emp_id'],
+                    "user_id"        => $user['user_id'],
+                    "email"          => $user['username'],
+                    "name"           => $employee ? $employee['first_name'] . ' ' . $employee['last_name'] : 'User',
+                    "role"           => $user['access_role'],
+                    "emp_id_display" => $employee['emp_id_display'] ?? null,
+                    "department_id"  => $employee['dept_id'] ?? null,
                 ]
             ]);
             
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode([
-                "success" => false,
-                "message" => "Server error: " . $e->getMessage()
-            ]);
+            echo json_encode(["message" => "Server error: " . $e->getMessage()]);
         }
     }
 }

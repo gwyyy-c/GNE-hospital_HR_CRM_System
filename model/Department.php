@@ -1,4 +1,8 @@
 <?php
+/**
+ * Department Model
+ * Handles hospital department data
+ */
 class Department {
     private $conn;
     private $table_name = "departments";
@@ -46,7 +50,7 @@ class Department {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+        $query = "DELETE FROM " . $this->table_name . " WHERE dept_id = ?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$id]);
     }

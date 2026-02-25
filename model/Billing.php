@@ -1,13 +1,15 @@
 <?php
+/**
+ * Billing Model
+ * Handles patient invoices and payment records
+ */
 class Billing {
     private $conn;
-    // Correct table name: billing (not invoices)
     private $table_name = "billing";
 
     public function __construct($db) { $this->conn = $db; }
 
     public function read() {
-        // Columns: bill_id, patient_id, admission_id, net_amount, payment_status, created_at
         $query = "SELECT b.bill_id, b.patient_id, b.admission_id,
                          b.net_amount, b.payment_status, b.created_at,
                          CONCAT(p.first_name, ' ', p.last_name) AS patient_name,
