@@ -1,0 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { height: 100%; -webkit-font-smoothing: antialiased; }
+  body {
+    @apply font-sans;
+    background: #F5F5F5;
+    color: #2E2E2E;
+    overflow: hidden;
+    height: 100%;
+    margin: 0; padding: 0;
+  }
+  #root { height: 100%; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white;
+    border: 1px solid #E8E8E8;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .badge          { @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold; }
+  .badge-complete { background: #EBF5E7; color: #45A72D; }
+  .badge-pending  { background: #FFFBEB; color: #d97706; }
+  .badge-danger   { background: #FFF1F2; color: #dc2626; }
+  .badge-primary  { background: #E6F5F9; color: #0E93B1; }
+}
+
+.scrollbar-thin::-webkit-scrollbar       { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.20); border-radius: 99px; }
