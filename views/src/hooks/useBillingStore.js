@@ -1,48 +1,48 @@
+/**
+ * useBillingStore - Billing state management hook
+ * Handles invoices, payments, and discharge workflow.
+ */
 import { useState, useCallback, useMemo } from "react";
-import {
-  INITIAL_INVOICES,
-  WARD_RATES,
-  TAX_RATE,
-} from "../data/Billing";
+import { INITIAL_INVOICES, WARD_RATES, TAX_RATE } from "../data/Billing";
 
 let _invoiceCounter = 100;
 
-// ── Compute room charge from admission date + ward rate ───────────────────────
+/** Calculate room charge based on admission duration and ward rate */
 export function calcRoomCharge(admittedAt, wardCode, dischargedAt = null) {
   if (!admittedAt || !wardCode) return { days: 0, rate: 0, total: 0 };
-  const rate    = WARD_RATES[wardCode]?.ratePerDay ?? 180;
-  const checkOut= dischargedAt ? new Date(dischargedAt) : new Date();
+  const rate = WARD_RATES[wardCode]?.ratePerDay ?? 180;
+  const checkOut = dischargedAt ? new Date(dischargedAt) : new Date();
   const checkIn = new Date(admittedAt);
-  const msPerDay= 1000 * 60 * 60 * 24;
-  const days    = Math.max(1, Math.ceil((checkOut - checkIn) / msPerDay));
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const days = Math.max(1, Math.ceil((checkOut - checkIn) / msPerDay));
   return { days, rate, total: days * rate };
 }
 
-// ── Compute full invoice totals ───────────────────────────────────────────────
+/** Calculate full invoice breakdown (room, treatment, tax, grand total) */
 export function calcInvoiceTotals(invoice) {
-  const room        = calcRoomCharge(invoice.admittedAt, invoice.wardCode, invoice.dischargedAt);
-  const treatment   = invoice.lineItems.reduce((sum, li) => sum + li.amount, 0);
-  const subtotal    = treatment + room.total;
+  const room = calcRoomCharge(invoice.admittedAt, invoice.wardCode, invoice.dischargedAt);
+  const treatment = invoice.lineItems.reduce((sum, li) => sum + li.amount, 0);
+  const subtotal = treatment + room.total;
   const discountAmt = Math.round((subtotal * (invoice.discount ?? 0)) / 100);
-  const taxable     = subtotal - discountAmt;
-  const tax         = Math.round(taxable * TAX_RATE);
-  const grand       = taxable + tax;
+  const taxable = subtotal - discountAmt;
+  const tax = Math.round(taxable * TAX_RATE);
+  const grand = taxable + tax;
   return { room, treatment, subtotal, discountAmt, tax, grand };
 }
 
 export function useBillingStore() {
   const [invoices, setInvoices] = useState(INITIAL_INVOICES);
 
-  // ── Derived billing stats ─────────────────────────────────────────────────
+  /** Derived billing statistics */
   const stats = useMemo(() => {
     const pending = invoices.filter((i) => i.status === "pending");
-    const paid    = invoices.filter((i) => i.status === "paid");
+    const paid = invoices.filter((i) => i.status === "paid");
     const pendingTotal = pending.reduce((s, i) => s + calcInvoiceTotals(i).grand, 0);
-    const paidTotal    = paid.reduce((s, i) => s + calcInvoiceTotals(i).grand, 0);
+    const paidTotal = paid.reduce((s, i) => s + calcInvoiceTotals(i).grand, 0);
     return {
       totalInvoices: invoices.length,
-      pendingCount:  pending.length,
-      paidCount:     paid.length,
+      pendingCount: pending.length,
+      paidCount: paid.length,
       pendingRevenue: pendingTotal,
       collectedRevenue: paidTotal,
       todayRevenue: paid
@@ -51,7 +51,7 @@ export function useBillingStore() {
     };
   }, [invoices]);
 
-  // ── Add line item to invoice ──────────────────────────────────────────────
+  /** Add a charge line item to an invoice */
   const addLineItem = useCallback((invoiceId, item) => {
     setInvoices((prev) =>
       prev.map((inv) =>
@@ -62,7 +62,7 @@ export function useBillingStore() {
     );
   }, []);
 
-  // ── Remove line item ─────────────────────────────────────────────────────
+  /** Remove a charge line item from an invoice */
   const removeLineItem = useCallback((invoiceId, itemId) => {
     setInvoices((prev) =>
       prev.map((inv) =>
@@ -73,14 +73,14 @@ export function useBillingStore() {
     );
   }, []);
 
-  // ── Update discount ───────────────────────────────────────────────────────
+  /** Update invoice discount percentage */
   const setDiscount = useCallback((invoiceId, pct) => {
     setInvoices((prev) =>
       prev.map((inv) => inv.id === invoiceId ? { ...inv, discount: pct } : inv)
     );
   }, []);
 
-  // ── Update insurance info ─────────────────────────────────────────────────
+  /** Update insurance provider and claim number */
   const setInsurance = useCallback((invoiceId, provider, claimNo) => {
     setInvoices((prev) =>
       prev.map((inv) =>
@@ -91,42 +91,37 @@ export function useBillingStore() {
     );
   }, []);
 
-  // ── Create a new invoice for a patient ───────────────────────────────────
+  /** Create a new invoice for a patient */
   const createInvoice = useCallback((data) => {
     const id = `inv-${String(++_invoiceCounter).padStart(3, "0")}`;
     const newInvoice = {
       id,
-      status:        "pending",
+      status: "pending",
       paymentMethod: null,
-      paidAt:        null,
-      lineItems:     [],
-      discount:      0,
+      paidAt: null,
+      lineItems: [],
+      discount: 0,
       ...data,
     };
     setInvoices((prev) => [newInvoice, ...prev]);
     return id;
   }, []);
 
-  // ── ⚡ CRITICAL: processDischarge ─────────────────────────────────────────
-  // Orchestrates the full cascade:
-  //   Invoice → Paid
-  //   Patient → Discharged
-  //   Bed     → Available (empty)
-  //   Doctor  → Available (patientCount -1)
-  //
-  // Accepts external setters from other stores because this module is the
-  // payment authority — it initiates all downstream state changes.
-  // In production: single POST /api/billing/discharge that handles all of this
-  // in a DB transaction on the PHP backend.
-  // ─────────────────────────────────────────────────────────────────────────
+  /**
+   * Process patient discharge with cascade state changes:
+   * - Mark invoice as Paid
+   * - Free assigned bed
+   * - Restore doctor availability
+   * - Mark patient as Discharged
+   * - Send discharge notification
+   */
   const processDischarge = useCallback(({
     invoiceId,
     paymentMethod,
-    // External store mutators — passed in from the parent orchestrator
-    onFreeBed,         // (bedId) => void
-    onFreeDoctor,      // (doctorId) => void
-    onDischargePatient,// (patientId) => void
-    onPushNotification,// (notif) => void
+    onFreeBed,
+    onFreeDoctor,
+    onDischargePatient,
+    onPushNotification,
   }) => {
     const invoice = invoices.find((i) => i.id === invoiceId);
     if (!invoice) throw new Error(`Invoice ${invoiceId} not found.`);
@@ -172,12 +167,12 @@ export function useBillingStore() {
 
     return {
       patientName: invoice.patientName,
-      bedId:       invoice.bedId,
-      doctorName:  invoice.doctorName,
+      bedId: invoice.bedId,
+      doctorName: invoice.doctorName,
     };
   }, [invoices]);
 
-  // ── Waive invoice ─────────────────────────────────────────────────────────
+  /** Mark invoice as waived with reason */
   const waiveInvoice = useCallback((invoiceId, reason) => {
     setInvoices((prev) =>
       prev.map((inv) =>
@@ -188,7 +183,7 @@ export function useBillingStore() {
     );
   }, []);
 
-  // ── Toggle invoice status (Pending ↔ Paid) ────────────────────────────────
+  /** Toggle invoice status between Pending and Paid */
   const toggleInvoiceStatus = useCallback((invoiceId) => {
     setInvoices((prev) =>
       prev.map((inv) => {

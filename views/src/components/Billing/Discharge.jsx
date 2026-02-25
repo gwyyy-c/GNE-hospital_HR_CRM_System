@@ -1,4 +1,7 @@
-// src/components/Billing/Discharge.jsx (exports DischargeModal)
+/**
+ * Discharge.jsx
+ * Modal for processing patient discharge with payment and cascade state updates.
+ */
 import { useState } from "react";
 import {
   X, CheckCircle2, CreditCard, Banknote, Building,

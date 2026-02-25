@@ -258,6 +258,80 @@ GNE-Hospital-Management-System/
 
 ---
 
+## Billing System
+
+The billing module handles patient invoices, payments, and discharge workflow.
+
+### Billing API Details
+
+#### Create Invoice
+```http
+POST /api/billing/create
+Content-Type: application/json
+
+{
+  "patient_id": 1,
+  "admission_id": 5,
+  "net_amount": 1500.00,
+  "payment_status": "Pending"
+}
+```
+
+#### Update Payment Status
+```http
+PUT /api/billing/update_status
+Content-Type: application/json
+
+{
+  "bill_id": 1,
+  "payment_status": "Paid"
+}
+```
+
+**Valid payment statuses:** `Pending`, `Paid`, `Partial`, `Waived`
+
+### Billing Data Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `bill_id` | INT | Primary key |
+| `patient_id` | INT | Foreign key to patients |
+| `admission_id` | INT | Foreign key to admissions (optional) |
+| `net_amount` | DECIMAL | Total invoice amount |
+| `payment_status` | ENUM | Pending, Paid, Partial, Waived |
+| `created_at` | TIMESTAMP | Invoice creation date |
+
+### Invoice Calculation (Frontend)
+
+The frontend calculates invoice totals using:
+
+1. **Room Charges**: Based on ward type and length of stay
+   - General Ward: $180/day
+   - ICU: $950/day
+   - Pediatrics: $220/day
+   - Maternity: $310/day
+   - Surgical: $420/day
+   - Cardiology: $580/day
+
+2. **Treatment Charges**: Line items for consultations, procedures, medications
+
+3. **Totals**:
+   - Subtotal = Room + Treatment charges
+   - Discount = Subtotal × discount percentage
+   - Tax = (Subtotal - Discount) × 8.5%
+   - Grand Total = Subtotal - Discount + Tax
+
+### Discharge Cascade
+
+When a patient is discharged via the billing module:
+1. Invoice marked as **Paid**
+2. Assigned bed status → **Available**
+3. Doctor availability restored
+4. Patient status → **Discharged**
+5. Discharge notification sent
+
+---
+
 ## Employee Roles
 
 | Role | Description | User Access Level |

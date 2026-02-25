@@ -1,14 +1,5 @@
 <?php
-/**
- * PUT /api/admission/update/:id
- * =============================
- * 
- * Updates an admission record.
- * 
- * @package   hr-pms-backend
- * @category  API Endpoint
- * @method    PUT
- */
+// Updates an admission record. 
 
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Admission.php';

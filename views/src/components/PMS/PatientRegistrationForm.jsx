@@ -27,7 +27,7 @@ const VISIT_TYPE_META = {
 };
 
 const EMPTY_FORM = {
-  name: "", age: "", gender: "Male", phone: "", email: "",
+  name: "", dateOfBirth: "", age: "", gender: "Male", phone: "", email: "",
   bloodType: "Unknown", visitType: "Walk-in",
   reason: "", emergencyContact: "", notes: "",
   // Appointment fields
@@ -77,6 +77,7 @@ export default function PatientRegistrationForm({ onClose, onRegister, doctors =
   const validate = () => {
     const e = {};
     if (!form.name.trim())   e.name   = "Patient name is required.";
+    if (!form.dateOfBirth)   e.dateOfBirth = "Date of birth is required.";
     if (!form.age || isNaN(form.age) || +form.age < 0 || +form.age > 130)
                              e.age    = "Enter your age.";
     // Phone validation
@@ -257,10 +258,39 @@ export default function PatientRegistrationForm({ onClose, onRegister, doctors =
             </div>
 
             <div>
+              <FieldLabel required>Date of Birth</FieldLabel>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
+                <input 
+                  type="date" 
+                  className={`${inputCls} pl-10 ${errors.dateOfBirth ? "border-danger-400" : ""}`}
+                  value={form.dateOfBirth}
+                  max={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    set("dateOfBirth", e.target.value);
+                    // Auto-calculate age from date of birth
+                    if (e.target.value) {
+                      const today = new Date();
+                      const birth = new Date(e.target.value);
+                      let age = today.getFullYear() - birth.getFullYear();
+                      const monthDiff = today.getMonth() - birth.getMonth();
+                      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                        age--;
+                      }
+                      set("age", age.toString());
+                    }
+                  }}
+                />
+              </div>
+              <ErrorMsg msg={errors.dateOfBirth} />
+            </div>
+
+            <div>
               <FieldLabel required>Age</FieldLabel>
               <input className={`${inputCls} ${errors.age ? "border-danger-400" : ""}`}
-                type="number" min="0" max="130" placeholder="e.g. 45"
-                value={form.age} onChange={(e) => set("age", e.target.value)} />
+                type="number" min="0" max="130" placeholder="Auto-calculated"
+                value={form.age} onChange={(e) => set("age", e.target.value)} 
+                readOnly={!!form.dateOfBirth} />
               <ErrorMsg msg={errors.age} />
             </div>
 
@@ -312,21 +342,21 @@ export default function PatientRegistrationForm({ onClose, onRegister, doctors =
                 <PhoneCall className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
                 <input className={`${inputCls} pl-10`}
                   placeholder="Contact Name"
-                  value={form.emergencyContact} onChange={(e) => set("emergencyContact", e.target.value)} />
+                  value={form.emergencyContactName} onChange={(e) => set("emergencyContactName", e.target.value)} />
               </div>
             </div>
           </div>
 
               <div>
-              <FieldLabel required> Emergency Contact Number</FieldLabel>
+              <FieldLabel required>Emergency Contact Number</FieldLabel>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
-                <input className={`${inputCls} pl-10 ${errors.phone ? "border-danger-400" : ""}`}
+                <input className={`${inputCls} pl-10 ${errors.emergencyContact ? "border-danger-400" : ""}`}
                   placeholder="09XXXXXXXXX"
                   maxLength={15}
-                  value={form.phone} onChange={(e) => set("phone", e.target.value.replace(/[^0-9+\-\s]/g, ""))} />
+                  value={form.emergencyContact} onChange={(e) => set("emergencyContact", e.target.value.replace(/[^0-9+\-\s]/g, ""))} />
               </div>
-              <ErrorMsg msg={errors.phone} />
+              <ErrorMsg msg={errors.emergencyContact} />
             </div>
 
           {/* Reason for Visit */}

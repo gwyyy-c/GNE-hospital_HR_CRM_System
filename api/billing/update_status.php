@@ -1,5 +1,11 @@
 <?php
-// billing/update_status.php — Update billing payment status
+/**
+ * PUT /api/billing/update_status
+ * Updates the payment status of a billing record.
+ * 
+ * Request body: { bill_id, payment_status } or { bill_id, status }
+ * Valid statuses: Pending, Paid, Partial, Waived
+ */
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Billing.php';
 

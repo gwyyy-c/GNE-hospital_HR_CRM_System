@@ -13,9 +13,6 @@ const ROLE_STYLES = {
   FrontDesk: {
     gradient: "linear-gradient(135deg, #1E3A5F 0%, #152C4A 100%)",
   },
-  Billing: {
-    gradient: "linear-gradient(135deg, #5E35B1 0%, #4527A0 100%)",
-  },
 };
 
 export default function DashboardBanner() {

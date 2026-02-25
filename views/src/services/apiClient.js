@@ -1,9 +1,16 @@
+/**
+ * apiClient
+ * Central API client for all backend communication
+ * Handles authentication, error handling, and endpoint organization
+ * @package GNE-Hospital-Management-System
+ */
+
 // Detect if running through Vite proxy or direct Apache access
 const isViteDev = window.location.port === '5173';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
   (isViteDev ? "/api" : "/GNE-Hospital-Management-System/api");
 
-//  Token management
+/** Token management */
 export function getToken() {
   return localStorage.getItem("hms_token");
 }
@@ -18,7 +25,7 @@ export function clearToken() {
   localStorage.removeItem("hms_token");
 }
 
-//  Core fetch wrapper 
+/** Core fetch wrapper with error handling and auth */
 export async function apiFetch(
   endpoint,
   options = {}
@@ -84,7 +91,7 @@ export async function apiFetch(
   }
 }
 
-// Authentication API 
+/** Authentication API endpoints */
 export const authAPI = {
   login: (email, password) =>
     apiFetch("/auth/login", {
@@ -96,7 +103,7 @@ export const authAPI = {
   logout: () => apiFetch("/auth/logout", { method: "POST" }),
 };
 
-// HR Module API
+/** HR Module API endpoints */
 export const hrAPI = {
   getEmployees: () => apiFetch("/employee/get_all"),
   getEmployee: (id) => apiFetch(`/employee/get/${id}`),
@@ -125,7 +132,7 @@ export const hrAPI = {
     apiFetch(`/schedule/delete/${id}`, { method: "DELETE" }),
 };
 
-// PMS Module API 
+/** Patient Management System API endpoints */
 export const pmsAPI = {
   getPatients: () => apiFetch("/patient/get_all"),
   getPatient: (id) => apiFetch(`/patient/get/${id}`),
@@ -174,7 +181,7 @@ export const pmsAPI = {
     apiFetch("/medical_record/create", { method: "POST", body: data }),
 };
 
-// Doctor Module API 
+/** Doctor Module API endpoints */
 export const doctorAPI = {
   getDoctorAppointments: (doctorId) =>
     apiFetch(`/appointment/doctor/${doctorId}`),
@@ -186,8 +193,8 @@ export const doctorAPI = {
     apiFetch(`/medical_record/update/${id}`, { method: "PUT", body: data }),
 };
 
-// Billing Module API
-  export const billingAPI = {
+/** Billing Module API endpoints */
+export const billingAPI = {
   getBillingRecords: () => apiFetch("/billing/get_all"),
   getBillingRecord: (id) => apiFetch(`/billing/get/${id}`),
   createInvoice: (data) =>
@@ -198,7 +205,7 @@ export const doctorAPI = {
     apiFetch(`/billing/pay/${id}`, { method: "POST", body: data }),
 };
 
-// ── Department API
+/** Department API endpoints */
 export const departmentAPI = {
   getDepartments: () => apiFetch("/department/get_all"),
   getDoctors: () => apiFetch("/employee/get_doctors"),

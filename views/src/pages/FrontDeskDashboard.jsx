@@ -1,24 +1,7 @@
-﻿/**
- * FrontDeskDashboard Page
- * =======================
- * 
+﻿/** 
  * Main dashboard for front desk staff. Handles patient registration,
  * appointment viewing, admissions tracking, and doctor availability checks.
- * 
- * Available Tabs:
- *   - dashboard: Overview with KPIs, appointments, and room status
- *   - patients: Full patient list with appointment history
- *   - appointments: Appointments table with doctor availability
- *   - admissions: Current patient admissions
- *   - billing: Billing information (placeholder)
- *   - inquiries: Hospital contact information and doctor availability
- * 
- * Features:
- *   - Patient registration with optional appointment booking
- *   - Two visit types: Walk-in and Appointment
- * 
- * @package   hr-pms-frontend
- * @category  Page Component (View in MVC)
+ 
  */
 import { useState, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
@@ -36,7 +19,7 @@ import DashboardBanner              from "../components/ui/DashboardBanner";
 
 // FrontDesk  Theme
 const C = {
-  primary:      "#1E3A5F",  // FrontDesk navy blue
+  primary:      "#1E3A5F",  
   primaryTint:  "#EEF3FF",
   teal:      "#0E93B1", blue:      "#5390FB", navy:      "#102544",
   slate:     "#7794A7", green:     "#45A72D", pageBg:    "#F5F5F5",
@@ -417,7 +400,6 @@ function KPIRow({ patients, appointments, admissions, beds }) {
 }
 
 function PatientsTable({ patients, appointments, onEditPatient, onViewPatient, onAssignBed }) {
-  // Build a map of patient_id -> latest appointment
   const patientAppointments = appointments.reduce((acc, apt) => {
     const pid = apt.patient_id;
     if (!acc[pid] || new Date(apt.appt_date ?? apt.appointment_date) > new Date(acc[pid].appt_date ?? acc[pid].appointment_date)) {

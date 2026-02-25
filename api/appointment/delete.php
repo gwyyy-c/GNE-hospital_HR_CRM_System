@@ -1,14 +1,5 @@
 <?php
-/**
- * DELETE /api/appointment/delete/:id
- * ===================================
- * 
- * Deletes an appointment.
- * 
- * @package   hr-pms-backend
- * @category  API Endpoint
- * @method    DELETE
- */
+// Deletes appointment
 
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Appointment.php';

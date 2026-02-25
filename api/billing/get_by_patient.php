@@ -1,5 +1,9 @@
 <?php
-// billing/get_by_patient.php — Get billing records for a specific patient
+/**
+ * GET /api/billing/get_by_patient?patient_id=X
+ * Returns all billing records for a specific patient.
+ * Query param: patient_id (required)
+ */
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Billing.php';
 
@@ -15,8 +19,7 @@ try {
     }
     
     $billing = new Billing($conn);
-    $result = $billing->getPatientBills($patientId);
-    echo json_encode($result->fetchAll(PDO::FETCH_ASSOC));
+    echo json_encode($billing->getPatientBills($patientId)->fetchAll(PDO::FETCH_ASSOC));
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(["error" => $e->getMessage()]);

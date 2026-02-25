@@ -1,5 +1,11 @@
 <?php
-// billing/create.php — Create a new billing record
+/**
+ * POST /api/billing/create
+ * Creates a new billing invoice for a patient.
+ * 
+ * Request body: { patient_id, admission_id?, net_amount?, payment_status? }
+ * Returns: { message, id }
+ */
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Billing.php';
 
@@ -22,9 +28,8 @@ try {
 
     $billing = new Billing($conn);
     if ($billing->create($data)) {
-        $billId = $conn->lastInsertId();
         http_response_code(201);
-        echo json_encode(["message" => "Billing record created", "id" => $billId]);
+        echo json_encode(["message" => "Billing record created", "id" => $conn->lastInsertId()]);
     } else {
         http_response_code(500);
         echo json_encode(["error" => "Failed to create billing record"]);

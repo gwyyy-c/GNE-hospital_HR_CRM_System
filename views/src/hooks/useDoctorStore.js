@@ -1,9 +1,9 @@
-// src/hooks/useDoctorStore.js
-// ─────────────────────────────────────────────────────────────────────────────
-// Doctor store with real API integration.
-// Fetches appointments, medical records, and patient data from PHP backend.
-// ─────────────────────────────────────────────────────────────────────────────
-
+/**
+ * useDoctorStore Hook
+ * Doctor dashboard data store with API integration
+ * Fetches appointments, medical records, and patient data from backend
+ * @package GNE-Hospital-Management-System
+ */
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { pmsAPI, doctorAPI } from "../services/apiClient";
 import { useAuth } from "../context/AuthContext";

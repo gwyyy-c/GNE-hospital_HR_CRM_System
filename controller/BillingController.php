@@ -1,21 +1,26 @@
 <?php
 /**
- * Billing Controller
- * Handles patient billing and invoice operations
+ * BillingController
+ * Business logic layer for billing operations.
+ * Called by API endpoints to interact with the Billing model.
  */
 require_once __DIR__ . '/../model/Billing.php';
 
 class BillingController {
-    public function getBills($db, $patient_id) {
+    
+    /** Get bills for a specific patient */
+    public function getBills($db, $patientId) {
         $billing = new Billing($db);
-        echo json_encode($billing->getPatientBills($patient_id)->fetchAll(PDO::FETCH_ASSOC));
+        echo json_encode($billing->getPatientBills($patientId)->fetchAll(PDO::FETCH_ASSOC));
     }
     
+    /** Get all billing records */
     public function getAllBills($db) {
         $billing = new Billing($db);
         echo json_encode($billing->read()->fetchAll(PDO::FETCH_ASSOC));
     }
     
+    /** Create a new billing record */
     public function createBill($db, $data) {
         $billing = new Billing($db);
         if ($billing->create($data)) {
@@ -27,6 +32,7 @@ class BillingController {
         }
     }
     
+    /** Update billing payment status */
     public function updateBillStatus($db, $billId, $status) {
         $billing = new Billing($db);
         if ($billing->updateStatus($billId, $status)) {

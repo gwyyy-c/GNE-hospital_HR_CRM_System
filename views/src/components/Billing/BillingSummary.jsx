@@ -1,14 +1,7 @@
-// src/components/Billing/BillingSummary.jsx (exports BillingDashboard)
-// ─────────────────────────────────────────────────────────────────────────────
-// Billing & Discharge module for Front Desk.
-// Contains:
-//   • Revenue KPI cards
-//   • Invoice list with search/filter
-//   • BillingSummaryCard (charge breakdown, defined locally)
-//   • DischargeModal (imported from ./Discharge.jsx)
-//   • Cascade toast for bed/doctor/invoice status updates
-// ─────────────────────────────────────────────────────────────────────────────
-
+/**
+ * BillingSummary.jsx
+ * Billing dashboard with revenue KPIs, invoice list, and discharge workflow.
+ */
 import { useState, useMemo } from "react";
 import {
   DollarSign, Receipt, Clock, CheckCircle2, TrendingUp,
@@ -214,13 +207,11 @@ function CascadeToast({ result, onDismiss }) {
               <span className={`ml-auto text-xs font-bold ${c}`}>→ {status}</span>
             </div>
           ))}
-        </div>
-      </div>
     </div>
   );
 }
 
-// ── Main Dashboard ─────────────────────────────────────────────────────────────
+/** Main Billing Dashboard */
 export default function BillingDashboard() {
   const {
     invoices, stats,
@@ -228,37 +219,24 @@ export default function BillingDashboard() {
     processDischarge,
   } = useBillingStore();
 
-  // These would come from shared context in real app
-  // Here we simulate the cascade target functions
-  const onFreeBed = (bedId) => {
-    console.log(`[CASCADE] Bed ${bedId} → status: "empty"`);
-    // In real app: pmsStore.updateBedStatus(bedId, "empty")
-  };
-  const onFreeDoctor = (doctorId) => {
-    console.log(`[CASCADE] Doctor ${doctorId} → status: "Available", patientCount--`);
-    // In real app: pmsStore.toggleDoctorStatus(doctorId) or doctorStore.restoreAvailability(doctorId)
-  };
-  const onDischargePatient = (patientId) => {
-    console.log(`[CASCADE] Patient ${patientId} → status: "Discharged"`);
-    // In real app: pmsStore.dischargePatient(patientId)
-  };
-  const onPushNotification = (notif) => {
-    console.log(`[NOTIF] ${notif.title}`);
-    // In real app: notificationStore.push(notif) or WebSocket emit
-  };
+  // Cascade handlers - in production, these would be from shared context
+  const onFreeBed = (bedId) => console.log(`[CASCADE] Bed ${bedId} → empty`);
+  const onFreeDoctor = (doctorId) => console.log(`[CASCADE] Doctor ${doctorId} → Available`);
+  const onDischargePatient = (patientId) => console.log(`[CASCADE] Patient ${patientId} → Discharged`);
+  const onPushNotification = (notif) => console.log(`[NOTIF] ${notif.title}`);
 
   const [selectedInvoice, setSelectedInvoice] = useState(invoices[0] ?? null);
   const [dischargeTarget, setDischargeTarget] = useState(null);
-  const [cascadeResult,   setCascadeResult]   = useState(null);
-  const [search,          setSearch]          = useState("");
-  const [statusFilter,    setStatusFilter]    = useState("all");
-  const [discountInput,   setDiscountInput]   = useState("");
+  const [cascadeResult, setCascadeResult] = useState(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [discountInput, setDiscountInput] = useState("");
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
 
-  // ── Filtered invoice list ─────────────────────────────────────────────────
+  /** Filter invoices by status and search term */
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
       const matchStatus = statusFilter === "all" || inv.status === statusFilter;
@@ -269,7 +247,7 @@ export default function BillingDashboard() {
     });
   }, [invoices, search, statusFilter]);
 
-  // ── Handle discharge confirmation ────────────────────────────────────────
+  /** Handle discharge with cascade state updates */
   const handleDischargeConfirm = ({ invoiceId, paymentMethod, notes }) => {
     const result = processDischarge({
       invoiceId,

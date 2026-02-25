@@ -1,5 +1,4 @@
 <?php
-// admission/admit.php — Admit a patient to a bed
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Admission.php';
 

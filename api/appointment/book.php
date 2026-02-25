@@ -1,19 +1,5 @@
 <?php
-/**
- * POST /api/appointment/book
- * ==========================
- * 
- * Creates a new appointment linking a patient to a doctor.
- * Required fields: patient_id, doctor_id
- * Optional fields: appt_date (defaults to now), visit_reason
- * 
- * @package   hr-pms-backend
- * @category  API Endpoint (Controller action in MVC)
- * @method    POST
- * @request   JSON { patient_id, doctor_id, appt_date?, visit_reason? }
- * @response  JSON { message: "Appointment booked successfully" }
- */
-
+// Creates a new appointment linking a patient to a doctor.
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../../model/Appointment.php';
 

@@ -1,13 +1,6 @@
 <?php
 /**
- * POST /api/admission/discharge/:id
- * ==================================
- * 
  * Discharges a patient from their admission and frees the bed.
- * 
- * @package   hr-pms-backend
- * @category  API Endpoint
- * @method    POST
  */
 
 require_once __DIR__ . '/../../config/db_connection.php';
