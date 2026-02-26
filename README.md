@@ -2,6 +2,7 @@
 
 A comprehensive hospital management system with HR, Patient Management (PMS), Doctor, and Billing modules. Built with **React 18 + Vite** (frontend) and **PHP 8 + MySQL/MariaDB** (backend REST API).
 
+Note: We deployed our system in Vercel however the backend doesn't work so we recommend to follow the Quick Start guide.
 ---
 
 ## Features
