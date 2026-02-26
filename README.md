@@ -86,6 +86,67 @@ Open `http://localhost:5173`
 
 ---
 
+## JWT Authentication
+
+The API uses JWT (JSON Web Token) for secure authentication.
+
+### Environment Setup
+
+1. Copy `.env.example` to `.env` in the project root:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure your JWT settings in `.env`:
+   ```env
+   JWT_SECRET_KEY=your_secure_random_secret_key_here
+   JWT_EXPIRY=86400
+   JWT_ISSUER=GNE-Hospital-System
+   ```
+
+### Using Authentication
+
+**Login Request:**
+```bash
+POST /api/auth/login
+Content-Type: application/json
+
+{"email": "hr@hospital.com", "password": "password123"}
+```
+
+**Response:**
+```json
+{
+  "message": "Login successful",
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": { "id": 1, "email": "hr@hospital.com", "role": "HR", ... }
+}
+```
+
+**Authenticated Requests:**
+```bash
+GET /api/employee/get_all
+Authorization: Bearer <your_jwt_token>
+```
+
+### Role-Based Access
+
+Protect API endpoints with role checks:
+
+```php
+require_once __DIR__ . '/../../helper/AuthHelper.php';
+
+// Require any valid token
+$user = AuthHelper::requireAuth();
+
+// Require specific role(s)
+$user = AuthHelper::requireDoctor();
+$user = AuthHelper::requireHR();
+$user = AuthHelper::requireRole(['Doctor', 'HR']);
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -116,8 +177,11 @@ GNE-Hospital-Management-System/
 │   ├── MedicalRecordController.php
 │   └── ScheduleController.php
 ├── helper/
-│   ├── AuthHelper.php     # Password hashing (bcrypt) utilities
+│   ├── AuthHelper.php     # JWT authentication & role-based access control
 │   └── ResponseHelper.php # Standardized JSON response formatter
+├── config/
+│   ├── db_connection.php  # PDO connection, CORS headers
+│   └── env.php            # Environment variable loader (.env parser)
 ├── model/                 # Data access layer (MVC models)
 │   ├── db_setup.sql       # Full database schema (10 tables)
 │   ├── User.php           # Login, account creation from employee

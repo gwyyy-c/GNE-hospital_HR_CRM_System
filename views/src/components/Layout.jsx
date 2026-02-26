@@ -98,9 +98,7 @@ const NAV_CONFIG = {
   },
 };
 
-// 
-// Sample notifications (replace with a real API call when backend is ready)
-// 
+// Sample dummy notifications
 const SAMPLE_NOTIFICATIONS = [
   { id: 1, type: "info",    title: "Leave request submitted",     body: "James Reyes submitted a leave request.",   time: "2m ago",  read: false },
   { id: 2, type: "warning", title: "Shift coverage gap",          body: "ICU night shift has no coverage on Fri.",  time: "1h ago",  read: false },
@@ -481,7 +479,7 @@ function Topbar({ user, onLogout, onMobileMenu }) {
 }
 
 // 
-// LOGOUT CONFIRMATION MODAL
+// LOGOUT POP-UP CONFIRMATION MODAL
 // 
 function LogoutModal({ user, onClose, onConfirm }) {
   const [phase, setPhase] = useState("idle");
@@ -566,7 +564,7 @@ function LogoutModal({ user, onClose, onConfirm }) {
 }
 
 // 
-// LAYOUT SHELL (default export)
+// LAYOUT SHELL
 // 
 export default function Layout({ role = "HR", children }) {
   const { user, signOut }       = useAuth();
@@ -577,8 +575,6 @@ export default function Layout({ role = "HR", children }) {
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   const navConfig = NAV_CONFIG[role] ?? NAV_CONFIG.HR;
-
-  // Derive active nav id from the last URL path segment
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const activeId     = pathSegments[pathSegments.length - 1] || "dashboard";
 
